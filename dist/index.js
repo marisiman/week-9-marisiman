@@ -131,16 +131,17 @@ app.post("/orderanss", (req, res) => {
     //res.send("Belajar dulu express");
 });
 app.put("/orderanss/:id", (req, res) => {
-    const body = req.body;
+    const id = parseInt(req.params.id);
+    const { user_id, spice_name, amount_kg, rupiah_id } = req.body;
     mysqlCon.query(`UPDATE 
     spices.orderanss
     SET 
-    user_id, 
-    spice_name, 
-    amount_kg, 
-    rupiah_id
-    WHERE id=?;
-    `, [body.user_id, body.spice_name, body.amount_kg, body.rupiah_id], (err, result, fields) => {
+    user_id=?, 
+    spice_name=?, 
+    amount_kg=?, 
+    rupiah_id=?
+    WHERE id=?
+    `, [user_id, spice_name, amount_kg, rupiah_id, id], (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "server not available"));

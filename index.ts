@@ -93,6 +93,17 @@ app.get("/pembeli", (req: Request, res: Response) => {
 
 app.get("/pembeli/:id", (req: Request, res: Response) => {
     const id = parseInt(req.params.id);
+
+   // mysqlCon.query('SELECT * FROM FROM spices.pembeli WHERE id = ?', [id], (err, result) => {
+   //     if (err) {
+   //       return res.status(500).json({ message: 'Internal server error' });
+   //     }
+   //     if (result.length === 0) {
+   //       return res.status(404).json({ message: 'User not found' });
+   //     }
+   // 
+   //     const user = result[0];
+
     mysqlCon.query(`select 
         p.id, 
         p.name, 
@@ -125,6 +136,7 @@ app.get("/pembeli/:id", (req: Request, res: Response) => {
                 
         });
 
+    //});
 
     //res.json({
     //    success:"Success get all spices order",
@@ -136,7 +148,7 @@ app.get("/pembeli/:id", (req: Request, res: Response) => {
 
 
 
-
+//====================POST PEMBELI========================================//
 
 app.post("/pembeli", (req: Request, res: Response) => {
 
@@ -147,11 +159,11 @@ app.post("/pembeli", (req: Request, res: Response) => {
     //res.send("Belajar dulu express");
 });
 
+//============================================================//
 
 
 
-
-
+//====================POST ORDER========================================//
 
 app.post("/orderanss", (req: Request, res: Response) => {
     const body = req.body;
@@ -192,19 +204,25 @@ app.post("/orderanss", (req: Request, res: Response) => {
     //res.send("Belajar dulu express");
 });
 
+//============================================================//
+
+
+
+//====================PUT ORDER by Id========================================//
 
 app.put("/orderanss/:id", (req: Request, res: Response) => {
-    const body = req.body;
+    const id = parseInt(req.params.id);
+    const {user_id, spice_name, amount_kg, rupiah_id} = req.body;
     mysqlCon.query(`UPDATE 
     spices.orderanss
     SET 
-    user_id, 
-    spice_name, 
-    amount_kg, 
-    rupiah_id
-    WHERE id=?;
+    user_id=?, 
+    spice_name=?, 
+    amount_kg=?, 
+    rupiah_id=?
+    WHERE id=?
     `
-        , [body.user_id, body.spice_name, body.amount_kg, body.rupiah_id], (err, result, fields) => {
+        ,[user_id, spice_name, amount_kg, rupiah_id, id], (err, result, fields) => {
            
             if (err){
                 console.error(err)
@@ -232,7 +250,11 @@ app.put("/orderanss/:id", (req: Request, res: Response) => {
     //res.send("Belajar dulu express");
 });
  
+//============================================================//
 
+
+
+//====================DELETE by ID========================================//
 
 app.delete('/orderanss/:id', (req: Request, res: Response) => {
     const id = parseInt(req.params.id);
@@ -268,9 +290,22 @@ app.delete('/orderanss/:id', (req: Request, res: Response) => {
         });
 });
 
+//============================================================//
 
 
-//===================================================//
+
+//=========================TITLE===============================//
+
+app.get("/", (req: Request, res: Response) => {
+
+    res.send("Assignment Week 9 by Iman");
+});
+
+//==============================================================//
+
+
+
+//========================LOCAL PORT===========================//
 app.listen(port, () => {
     console.log(`⚡️[server]: Server is running at http://localhost:${port}`);
 

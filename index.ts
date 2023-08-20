@@ -27,6 +27,7 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 
+//==Common Response==//
 
 const commonResponse = function (data:any, error:any){
     if(error){
@@ -47,6 +48,8 @@ const commonResponse = function (data:any, error:any){
 }
 
 
+//==Connect by MySQL==//
+
 const mysqlCon = mysql.createConnection({
 
     host: 'localhost',
@@ -57,7 +60,10 @@ const mysqlCon = mysql.createConnection({
 });
 
 mysqlCon.connect((err) => {
-    if (err) throw err
+    if (err) {
+        console.error('Error, cant connect to MySQL: ' + err.stack)
+        return;
+    }
 
     console.log("mysql success connected")
 });
@@ -108,13 +114,16 @@ app.get("/pembeli/:id", (req: Request, res: Response) => {
         p.id, 
         p.name, 
         p.address, 
-        sum(o.rupiah_id) as total_payment
+        sum(case when o.types = 'cash' then o.rupiah_id else -o.rupiah_id end) 
+        as balance,
+        sum(case when o.types='e-payment' then o.rupiah_id else 0 end) as expense        
+        
     from 
         spices.pembeli as p
         left join spices.orderanss as o on p.id = o.user_id
     where 
         p.id = ?
-        group by p.id`,id, (err, result, fields) => {
+        group by p.id ;`,id, (err, result, fields) => {
             
             if (err){
                 console.error(err)
@@ -123,8 +132,9 @@ app.get("/pembeli/:id", (req: Request, res: Response) => {
                 return
             }
             
+            
             res.status(201).json(commonResponse(
-                result,
+                result[0],
                 null
                 ))
                 
@@ -151,11 +161,44 @@ app.get("/pembeli/:id", (req: Request, res: Response) => {
 //====================POST PEMBELI========================================//
 
 app.post("/pembeli", (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+    const body = req.body;
+    mysqlCon.query(`INSERT INTO 
+    spices.pembeli
+        (
+            id, 
+            name,
+            nomorhp,
+            address
+        )
+        VALUES(?, ?, ?, ?)`
+        , [body.id, body.name, body.nomorhp, body.address], (err, result, fields) => {
+           
+            if (err){
+                console.error(err)
+                res.status(508).json(commonResponse(null, "server not available"))
+                res.end()
+                return
+            }
+            
+            res.status(201).json(commonResponse({
+                id: id
+            },               
+                null))
+                
+            res.end()
 
-    res.json({
-        success:"Success get all spices order",
+           // console.log("err", err)
+           // console.log("result", result)
+           // console.log("fields", fields)
+
+           // res.end()
+        });
+
+    //res.json({
+    //    success:"Success get all spices order",
         
-    });
+    //});
     //res.send("Belajar dulu express");
 });
 
@@ -172,11 +215,12 @@ app.post("/orderanss", (req: Request, res: Response) => {
         (
             user_id, 
             spice_name,
+            types,
             amount_kg,
             rupiah_id 
         )
-        VALUES(?, ?, ?, ?)`
-        , [body.user_id, body.spice_name, body.amount_kg, body.rupiah_id], (err, result, fields) => {
+        VALUES(?, ?, ?, ?, ?)`
+        , [body.user_id, body.spice_name, body.types ,body.amount_kg, body.rupiah_id], (err, result, fields) => {
            
             if (err){
                 console.error(err)
@@ -266,13 +310,6 @@ app.delete('/orderanss/:id', (req: Request, res: Response) => {
             if (err){
                 console.error(err)
                 res.status(508).json(commonResponse(null, "server not available"))
-                res.end()
-                return
-            }
-            
-            if(result.affectedRows`` == 0){
-
-                res.status(404).json(commonResponse(null, "data order not available"))
                 res.end()
                 return
             }

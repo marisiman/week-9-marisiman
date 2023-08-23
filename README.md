@@ -137,12 +137,19 @@
 </p>
 
 
+<<<<<<< HEAD
 `you can check here` :
 
 - :arrow_right: [assignment-week8](https://smoggy-pike-headscarf.cyclic.cloud/spices/)
 
 - :arrow_right: :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
 
+=======
+`you can check here` 
+
+- :arrow_right: [assignment-week8](https://careful-leotard-moth.cyclic.cloud/spices/)
+- :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
+>>>>>>> 6be129253dc61b6ba09c9b00b2f63454fdf87d7b
 
 
 </div>

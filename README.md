@@ -11,26 +11,29 @@
 </p>
 
 
-    CREATE TABLE `pembeli` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `name` varchar(10) NOT NULL,
-    `nomorhp` varchar(12) NOT NULL,
+    -- railway.users definition
+
+    CREATE TABLE `users` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `name` text NOT NULL,
+    `nomorPhone` text NOT NULL,
     `address` text NOT NULL,
-    PRIMARY KEY (`id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
-
-
-    CREATE TABLE `orderanss` (
-    `id` int NOT NULL AUTO_INCREMENT,
-    `user_id` int NOT NULL,
-    `spice_name` text NOT NULL,
-    `types` enum('cash','e-payment') NOT NULL,
-    `amount_kg` double NOT NULL,
-    `rupiah_id` int NOT NULL,
     PRIMARY KEY (`id`),
-    KEY `orderanss_FK` (`user_id`)
-    ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+    UNIQUE KEY `id` (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+
+    -- railway.transactions definition
+
+    CREATE TABLE `transactions` (
+    `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+    `user_id` int NOT NULL,
+    `type` text NOT NULL,
+    `amount` double NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `id` (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 </br></br>
 
@@ -44,7 +47,55 @@
     `GET`: Used for retrieving assets.
     `PUT`: Used for updating assets.
     `DELETE`: Used for deleting assets.
-        
+--    
+
+- GET All : "https://rich-cap-toad.cyclic.cloud/users/"
+
+        "SELECT*FROM `railway`.users"
+
+
+- GET by Id : "https://rich-cap-toad.cyclic.cloud/users/:id"
+
+        SELECT 
+                u.name , 
+                u.address ,
+                sum(case when o.type = 'income' then o.amount else -o.amount end) 
+                as balance,
+                sum(case when o.type ='expense' then o.amount else 0 end) as expense
+        FROM 
+                railway.users as u 
+                left join railway.transactions as o on u.id = o.user_id 
+        WHERE
+                u.id = ?
+                GROUP BY u.id;
+
+
+- POST : "https://rich-cap-toad.cyclic.cloud/users/"
+
+        INSERT INTO railway.users
+        (id, name, nomorPhone, address)
+        VALUES(?, ?, ?, ?);
+
+
+- POST : "https://rich-cap-toad.cyclic.cloud/transactions/"
+
+        INSERT INTO railway.transactions
+        (user_id, type, amount)
+        VALUES(?, ?, ?);
+
+
+- PUT : "https://rich-cap-toad.cyclic.cloud/transactions/:id"
+
+        UPDATE railway.transactions
+        SET user_id=?, type=?, amount=?, 
+        WHERE id=? ;
+
+- DELETE : "https://rich-cap-toad.cyclic.cloud/transactions/:id"
+
+        DELETE FROM railway.transactions
+        WHERE id=? ;    
+
+
 
 </div>
 
@@ -55,6 +106,9 @@
 
 <h3>MySQL</h3>
 <p>MySQL, which is read "MY-ES-KYOO-EL" is an open-source database management system that uses basic commands or a programming language in the form of a structured query language (SQL) which is quite popular in the world of technology. MySQL is useful as a database.</p>
+
+<h3>Railway</h3>
+<p>Media for build database from MySQL to useful server deploy a database.</p>
 
 <h3>Typescript / JavaScript / ExpressJs</h3>
 <p>If you are here I am assuming you already know what expressJs, javascript, node, and typescript are. I am also assuming that you have node and npm installed. So I will not go in deep about that.</p>
@@ -83,7 +137,7 @@
 </p>
 
 
-`you can check here` :arrow_right: [assignment-week9](https://lucky-eel-panama-hat.cyclic.cloud)
+`you can check here` :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
 
 
 </div>

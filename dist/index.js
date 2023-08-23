@@ -38,24 +38,63 @@ const commonResponse = function (data, error) {
         display: data
     };
 };
+// ====== mysql local connection
+//const mysqlCon = mysql.createConnection({
+//    host: process.env.SQL_HOST,
+//    port: process.env.SQL_PORT,
+//    user: process.env.SQL_USER,
+//    password: process.env.SQL_PWD,
+//    database: process.env.SQL_DB
+//})
+// ====== connect database to railway
+//const mysqlCon2 = mysql.createConnection(`mysql://root:EZgPGaB1FTkgUuEFHwTg@containers-us-west-90.railway.app:5752/railway`)
+//mysqlCon2.connect((err) => {
+//    if (err) throw err
+//    console.log("mysql successfully connected")
+//});
 //==Connect by MySQL==//
 const mysqlCon = mysql2_1.default.createConnection({
-    host: 'localhost',
-    port: 3306,
+    host: 'containers-us-west-62.railway.app',
+    port: 6311,
     user: 'root',
-    password: 'MySQLku',
-    database: 'spices'
+    password: 'MH9fzb4pae8QM9Nq2jXH',
+    database: 'railway'
+    //host: 'mysql-week9-marisiman99-31bd.aivencloud.com',
+    //port: 11671,
+    //user: 'avnadmin',
+    //password: 'AVNS_qCGnwRgGXql0rCPfHmb',
+    //database: 'mysql-week9'
+    //host: 'localhost',
+    //port: 3306,
+    //user: 'root',
+    //password: 'MySQLku',
+    //database: 'spices'
 });
 mysqlCon.connect((err) => {
     if (err) {
         console.error('Error, cant connect to MySQL: ' + err.stack);
         return;
     }
-    console.log("mysql success connected");
+    //    console.log("mysql success connected")
 });
-//===============////======GET ALL==========////===========//
-app.get("/pembeli", (req, res) => {
-    mysqlCon.query("select*from spices.pembeli", (err, result, fields) => {
+//===============////======GET ALL Users==========////===========//
+app.get("/users", (req, res) => {
+    mysqlCon.query("select*from `railway`.users", (err, result, fields) => {
+        if (err) {
+            console.error(err);
+            res.status(508).json(commonResponse(null, "server error"));
+            res.end();
+            return;
+        }
+        res.status(201).json(commonResponse(result, null));
+        res.end();
+        //console.log("err", err)
+        //console.log("result", result)
+    });
+});
+//=========================GET ALL CLOSE=======================================//
+app.get("/transactions", (req, res) => {
+    mysqlCon.query("select*from `railway`.transactions", (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "server error"));
@@ -70,7 +109,7 @@ app.get("/pembeli", (req, res) => {
 });
 //=========================GET ALL CLOSE=======================================//
 //====================GET by ID========================================//
-app.get("/pembeli/:id", (req, res) => {
+app.get("/users/:id", (req, res) => {
     const id = parseInt(req.params.id);
     // mysqlCon.query('SELECT * FROM FROM spices.pembeli WHERE id = ?', [id], (err, result) => {
     //     if (err) {
@@ -81,20 +120,18 @@ app.get("/pembeli/:id", (req, res) => {
     //     }
     // 
     //     const user = result[0];
-    mysqlCon.query(`select 
-        p.id, 
-        p.name, 
-        p.address, 
-        sum(case when o.types = 'cash' then o.rupiah_id else -o.rupiah_id end) 
+    mysqlCon.query(`SELECT 
+        u.name , 
+        u.address ,
+        sum(case when o.type = 'income' then o.amount else -o.amount end) 
         as balance,
-        sum(case when o.types='e-payment' then o.rupiah_id else 0 end) as expense        
-        
-    from 
-        spices.pembeli as p
-        left join spices.orderanss as o on p.id = o.user_id
-    where 
-        p.id = ?
-        group by p.id ;`, id, (err, result, fields) => {
+        sum(case when o.type ='expense' then o.amount else 0 end) as expense
+    FROM 
+        railway.users as u 
+        left join railway.transactions as o on u.id = o.user_id 
+    WHERE
+        u.id = ?
+        GROUP BY u.id;`, id, (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "your id order not available"));
@@ -114,18 +151,18 @@ app.get("/pembeli/:id", (req, res) => {
     //res.send("Belajar dulu express");
 });
 //====================POST PEMBELI========================================//
-app.post("/pembeli", (req, res) => {
+app.post("/users", (req, res) => {
     const id = parseInt(req.params.id);
     const body = req.body;
     mysqlCon.query(`INSERT INTO 
-    spices.pembeli
+    railway.users
         (
             id, 
             name,
-            nomorhp,
+            nomorPhone,
             address
         )
-        VALUES(?, ?, ?, ?)`, [body.id, body.name, body.nomorhp, body.address], (err, result, fields) => {
+        VALUES(?, ?, ?, ?)`, [body.id, body.name, body.nomorPhone, body.address], (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "server not available"));
@@ -148,18 +185,16 @@ app.post("/pembeli", (req, res) => {
 });
 //============================================================//
 //====================POST ORDER========================================//
-app.post("/orderanss", (req, res) => {
+app.post("/transactions", (req, res) => {
     const body = req.body;
     mysqlCon.query(`INSERT INTO 
-    spices.orderanss
+    railway.transactions
         (
             user_id, 
-            spice_name,
-            types,
-            amount_kg,
-            rupiah_id 
+            type,
+            amount
         )
-        VALUES(?, ?, ?, ?, ?)`, [body.user_id, body.spice_name, body.types, body.amount_kg, body.rupiah_id], (err, result, fields) => {
+        VALUES(?, ?, ?)`, [body.user_id, body.type, body.amount], (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "server not available"));
@@ -179,18 +214,17 @@ app.post("/orderanss", (req, res) => {
 });
 //============================================================//
 //====================PUT ORDER by Id========================================//
-app.put("/orderanss/:id", (req, res) => {
+app.put("/transactions/:id", (req, res) => {
     const id = parseInt(req.params.id);
-    const { user_id, spice_name, amount_kg, rupiah_id } = req.body;
+    const { user_id, type, amount } = req.body;
     mysqlCon.query(`UPDATE 
-    spices.orderanss
+    railway.transactions
     SET 
     user_id=?, 
-    spice_name=?, 
-    amount_kg=?, 
-    rupiah_id=?
+    type=?, 
+    amount=?, 
     WHERE id=?
-    `, [user_id, spice_name, amount_kg, rupiah_id, id], (err, result, fields) => {
+    `, [user_id, type, amount, id], (err, result, fields) => {
         if (err) {
             console.error(err);
             res.status(508).json(commonResponse(null, "server not available"));
@@ -210,10 +244,10 @@ app.put("/orderanss/:id", (req, res) => {
 });
 //============================================================//
 //====================DELETE by ID========================================//
-app.delete('/orderanss/:id', (req, res) => {
+app.delete('/transactions/:id', (req, res) => {
     const id = parseInt(req.params.id);
     mysqlCon.query(`DELETE FROM 
-        spices.orderanss
+        railway.transactions
     WHERE 
         id=?`, id, (err, result, fields) => {
         if (err) {

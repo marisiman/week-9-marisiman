@@ -9,6 +9,31 @@
 
 <p>1. Create table in MySQL based on the given requirements
 </p>
+
+
+    CREATE TABLE `pembeli` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `name` varchar(10) NOT NULL,
+    `nomorhp` varchar(12) NOT NULL,
+    `address` text NOT NULL,
+    PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+    CREATE TABLE `orderanss` (
+    `id` int NOT NULL AUTO_INCREMENT,
+    `user_id` int NOT NULL,
+    `spice_name` text NOT NULL,
+    `types` enum('cash','e-payment') NOT NULL,
+    `amount_kg` double NOT NULL,
+    `rupiah_id` int NOT NULL,
+    PRIMARY KEY (`id`),
+    KEY `orderanss_FK` (`user_id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+</br></br>
+
 <p>2. Create a simple API Server using Node js, TypeScript, and Express that allows user to perform basic CRUD operation on product implementation.
 </p>
 

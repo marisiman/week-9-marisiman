@@ -137,7 +137,12 @@
 </p>
 
 
-`you can check here` :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
+`you can check here` :
+
+- :arrow_right: [assignment-week8](https://smoggy-pike-headscarf.cyclic.cloud/spices/)
+
+- :arrow_right: :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
+
 
 
 </div>

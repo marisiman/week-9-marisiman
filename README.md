@@ -140,7 +140,7 @@
 `you can check here` >>>
 
 - :arrow_right: [assignment-week8](https://smoggy-pike-headscarf.cyclic.cloud/spices/)
-- :arrow_right: [assignment-week9](https://rich-cap-toad.cyclic.cloud/)
+- :arrow_right: [assignment-week9](https://weak-pink-dhole-hat.cyclic.cloud/)
 
 
 </div>
